@@ -1,38 +1,126 @@
+
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="/">
-
   <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="portfolio" content="width=device-width, initial-scale=1.0">
+  <title>portfolio</title>
+  <style>
+    /* تنسيق الصفحة المبدئية */
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #ffffff; /* لون الخلفية */
+      font-family: Arial, sans-serif;
+      flex-direction: column;
+    }
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="portfolio_me">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+    #splash-screen {
+      text-align: center;
+    }
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+    /* صورة التحميل */
+    #loading-image {
+      width: 150px; /* حجم الصورة */
+      height: auto;
+    }
 
-  <title>portfolio_me</title>
-  <link rel="manifest" href="manifest.json">
+    /* شريط التقدم */
+    #progress-container {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #progress-bar {
+      width: 250px;
+      height: 10px;
+      background-color: #f3f3f3;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid #ccc;
+    }
+
+    #progress-bar-fill {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, #ff4e50, #1c92d2);
+      transition: width 0.3s ease; /* تحميل أسرع */
+    }
+
+    /* نسبة التحميل */
+    #progress-text {
+      margin-top: 5px;
+      font-size: 1rem;
+      color: #2c3e50;
+    }
+
+    /* إخفاء المحتوى المبدئي بعد التحميل */
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- شاشة التحميل -->
+  <div id="splash-screen">
+    <img id="loading-image" src="assets\images\image.png" alt="Loading..."> <!-- استبدل "logo.png" بشعارك -->
+    <div id="progress-container">
+      <div id="progress-bar">
+        <div id="progress-bar-fill"></div>
+      </div>
+      <div id="progress-text">0%</div>
+    </div>
+  </div>
+
+  <!-- تطبيق Flutter -->
+  <script src="flutter.js" defer></script>
+  <script>
+    let progress = 0;
+    const progressBar = document.getElementById("progress-bar-fill");
+    const progressText = document.getElementById("progress-text");
+
+    // محاكاة تحميل سريع مع تحديث النسبة
+    function simulateFastLoading() {
+      return new Promise((resolve) => {
+        const interval = setInterval(() => {
+          if (progress < 100) {
+            progress += Math.floor(Math.random() * 20) + 10; // تحميل أسرع
+            if (progress > 100) progress = 100;
+            progressBar.style.width = progress + "%";
+            progressText.innerText = progress + "%";
+          } else {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 300); // تقليل الزمن لكل تحديث
+      });
+    }
+
+    // بدء التحميل
+    simulateFastLoading().then(() => {
+      console.log("Loading Flutter...");
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: "1"
+        }
+      }).then(function(engineInitializer) {
+        console.log("Flutter Initialized");
+        return engineInitializer.initializeEngine();
+      }).then(function(appRunner) {
+        console.log("Flutter App Running");
+        document.getElementById("splash-screen").classList.add("hidden"); // إخفاء شاشة التحميل
+        appRunner.runApp(); // تشغيل التطبيق
+      }).catch(function(error) {
+        console.error("Flutter failed to load", error);
+      });
+    });
+  </script>
 </body>
 </html>
