@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>portfolio</title>
+  <title>Portfolio</title>
   <style>
     /* تنسيق الصفحة المبدئية */
     body {
@@ -13,7 +13,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background-color: #F4F4EF; /* لون الخلفية */
+      background-color: #F4F4EF;
       font-family: Arial, sans-serif;
       flex-direction: column;
     }
@@ -28,16 +28,14 @@
       justify-content: center;
       align-items: center;
       flex-direction: column;
-      transition: opacity 0.5s ease-out; /* تأثير سلس عند الاختفاء */
+      transition: opacity 0.5s ease-out;
     }
 
-    /* صورة التحميل */
     #loading-image {
-      width: 150px; /* حجم الصورة */
+      width: 150px;
       height: auto;
     }
 
-    /* شريط التقدم */
     #progress-container {
       margin-top: 15px;
       display: flex;
@@ -61,14 +59,12 @@
       transition: width 0.3s ease;
     }
 
-    /* نسبة التحميل */
     #progress-text {
       margin-top: 5px;
       font-size: 1rem;
       color: #2c3e50;
     }
 
-    /* إخفاء سلس عند تحميل التطبيق */
     .hidden {
       opacity: 0;
       pointer-events: none;
@@ -77,7 +73,6 @@
 </head>
 <body>
 
-  <!-- شاشة التحميل -->
   <div id="splash-screen">
     <img id="loading-image" src="assets/images/image.png" alt="Loading...">
     <div id="progress-container">
@@ -87,38 +82,39 @@
       <div id="progress-text">0%</div>
     </div>
   </div>
-
-  <!-- تحميل `flutter.js` مسبقًا -->
-  <script>
-    const flutterScript = document.createElement("script");
-    flutterScript.src = "flutter.js";
-    flutterScript.async = true;
-    document.head.appendChild(flutterScript);
-  </script>
-
   <script>
     let progress = 0;
     const progressBar = document.getElementById("progress-bar-fill");
     const progressText = document.getElementById("progress-text");
-
-    // محاكاة تحميل سريع مع تحديث النسبة
+  
     function simulateFastLoading() {
       return new Promise((resolve) => {
         const interval = setInterval(() => {
-          if (progress < 100) {
+          if (progress < 90) { // توقف عند 90% لانتظار Flutter
             progress += Math.floor(Math.random() * 8);
-            if (progress > 100) progress = 100;
+            if (progress > 90) progress = 90;
             progressBar.style.width = progress + "%";
             progressText.innerText = progress + "%";
           } else {
             clearInterval(interval);
             resolve();
           }
-        }, 200); // تحميل أسرع
+        }, 200);
       });
     }
-
-    // بدء التحميل
+  
+    const flutterScript = document.createElement("script");
+    flutterScript.src = "flutter.js";
+    flutterScript.async = true;
+    flutterScript.onload = () => {
+      console.log("flutter.js loaded successfully");
+    };
+    flutterScript.onerror = () => {
+      console.error("Failed to load flutter.js");
+      progressText.innerText = "Failed to load application. Please refresh the page.";
+    };
+    document.head.appendChild(flutterScript);
+  
     simulateFastLoading().then(() => {
       console.log("Loading Flutter...");
       _flutter.loader.loadEntrypoint({
@@ -130,19 +126,26 @@
         return engineInitializer.initializeEngine();
       }).then(function(appRunner) {
         console.log("Flutter App Running");
-
-        // تأثير اختفاء سلس لشاشة التحميل
+  
+        // الانتقال إلى 100% بعد تحميل Flutter
+        progressBar.style.width = "100%";
+        progressText.innerText = "100%";
+  
+        // إخفاء شاشة التحميل بعد التأكد من تشغيل Flutter
         const splashScreen = document.getElementById("splash-screen");
         splashScreen.classList.add("hidden");
-
+  
         setTimeout(() => {
-          splashScreen.style.display = "none"; // إخفاء كلي بعد التأثير
-        }, 500);
-
+          splashScreen.style.display = "none";
+        }, 1000); // تأخير إضافي لمدة ثانية
+  
         appRunner.runApp();
       }).catch(function(error) {
         console.error("Flutter failed to load", error);
+        progressText.innerText = "Failed to load application. Please try again.";
       });
+    }).catch((error) => {
+      console.error("Loading simulation failed", error);
     });
   </script>
 
